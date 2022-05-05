@@ -7,6 +7,7 @@ customized by gaspard_savoureux
 """
 
 import cv2
+from matplotlib.transforms import Bbox
 import mediapipe as mp
 import math
 
@@ -175,35 +176,37 @@ class HandDetector:
     #This is incomplete and shit at the moment, will be better one of theses days
     def infoOnHand(self,
                img,
-               brect,
                hand,
-               textToShow: list = None,
-               vitesse = None):
+               textToShow: list = None):
 
+        x, y, w, h = hand["bbox"]
+        brect = x, y, x + w, y + h
+        handType = hand["type"]
         x1, x2 = brect[0], brect[2]
         font = (x2 - x1) * 0.00375
-
+        
         if textToShow is not None:
             length = len(textToShow)
             cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 26*(length+1)),
                     (0, 0, 0), -1)
 
             x, y = brect[0] + 5, (brect[1] - 8)
-            print(x, y)
-            cv2.putText(img, f"{hand}: ", (x, y - 26 * length),
+            
+            cv2.putText(img, f"{handType}: ", (x, y - 26 * length),
                 cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
             isFirst = True
             for text in textToShow:
                 if not isFirst:
                     y -= 26
-                cv2.putText(img, text, (x, y),
+                
+                cv2.putText(img, str(text), (x, y),
                     cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
                 isFirst = False
         else:
             cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 22),
             (0, 0, 0), -1)
 
-            cv2.putText(img, hand, (brect[0] + 5, (brect[1] - 4)),
+            cv2.putText(img, handType, (brect[0] + 5, (brect[1] - 4)),
                 cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
         return img
 
