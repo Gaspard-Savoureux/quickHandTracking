@@ -168,7 +168,7 @@ class HandDetector:
             cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
             cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
             cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-            return length, info, img
+            return round(length, 1), info, img
         else:
             return length, info
 
@@ -177,32 +177,28 @@ class HandDetector:
                img,
                brect,
                hand,
-               textToShow = None,
+               textToShow: list = None,
                vitesse = None):
 
         x1, x2 = brect[0], brect[2]
         font = (x2 - x1) * 0.00375
 
-        if textToShow != None and vitesse != None:
-            cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 46),
+        if textToShow is not None:
+            length = len(textToShow)
+            cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 26*(length+1)),
                     (0, 0, 0), -1)
 
-            infoSign = hand + ':' + textToShow
-            cv2.putText(img, infoSign, (brect[0] + 5, brect[1] - 30),
+            x, y = brect[0] + 5, (brect[1] - 8)
+            print(x, y)
+            cv2.putText(img, f"{hand}: ", (x, y - 26 * length),
                 cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
-
-            infoVitesse = 'Vitesse:' + vitesse
-            cv2.putText(img, infoVitesse, (brect[0] + 5, (brect[1] - 4) - 4),
-                        cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
-
-        elif textToShow is not None:
-            cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 22),
-                    (0, 0, 0), -1)
-
-            infoSign = hand + ': ' + textToShow
-            cv2.putText(img, infoSign, (brect[0] + 5, (brect[1] - 4)),
-                cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
-
+            isFirst = True
+            for text in textToShow:
+                if not isFirst:
+                    y -= 26
+                cv2.putText(img, text, (x, y),
+                    cv2.FONT_HERSHEY_SIMPLEX, font, (255, 255, 255), 1, cv2.LINE_AA)
+                isFirst = False
         else:
             cv2.rectangle(img, (brect[0], brect[1]), (brect[2], brect[1] - 22),
             (0, 0, 0), -1)
